@@ -161,8 +161,12 @@ module cv32e40p_ex_stage
 
     output logic ex_ready_o,  // EX stage ready for new data
     output logic ex_valid_o,  // EX stage gets new data
-    input  logic wb_ready_i  // WB stage ready for new data
-);
+    input  logic wb_ready_i,  // WB stage ready for new data
+
+    output logic [31:0] div_out_0,     // out div for TMR
+    output logic [31:0] div_out_1,     // out div for TMR
+    output logic [31:0] div_out_2     // out div for TMR
+  );
 
   logic [                31:0] alu_result;
   logic [                31:0] mult_result;
@@ -282,7 +286,13 @@ module cv32e40p_ex_stage
       .comparison_result_o(alu_cmp_result),
 
       .ready_o   (alu_ready),
-      .ex_ready_i(ex_ready_o)
+      .ex_ready_i(ex_ready_o),
+
+      // signal for the TMR
+      .div_out_0(div_out_0),
+      .div_out_1(div_out_1),
+      .div_out_2(div_out_2)
+
   );
 
 

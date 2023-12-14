@@ -1,0 +1,6 @@
+make questa/compile         -> to compile the rtl design and verify it works
+make synthesis/nangate45    -> synthesis of the design
+make questa/lsim/gate/shell -> gate lev simulation
+make zoix/fgen/saf          -> generate stack at fault file
+make zoix/fsim FAULT_LIST=  -> generate the report, the fault list is in the run folder named cv..._top_saf.rpt
+                            the report is the file with same name but hier extension

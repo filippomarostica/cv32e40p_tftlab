@@ -49,7 +49,12 @@ module cv32e40p_alu
     output logic        comparison_result_o,
 
     output logic ready_o,
-    input  logic ex_ready_i
+    input  logic ex_ready_i,
+
+    output logic [31:0] div_out_0,     // out div for TMR
+    output logic [31:0] div_out_1,     // out div for TMR
+    output logic [31:0] div_out_2     // out div for TMR
+
 );
 
   logic [31:0] operand_a_rev;
@@ -879,6 +884,7 @@ module cv32e40p_alu
   ////////////////////////////////////////////////////
 
   logic [31:0] result_div;
+  logic [31:0] result_div_partial [2:0];    // create an array for TMR
   logic        div_ready;
   logic        div_signed;
   logic        div_op_a_signed;
@@ -894,27 +900,43 @@ module cv32e40p_alu
   assign div_valid = enable_i & ((operator_i == ALU_DIV) || (operator_i == ALU_DIVU) ||
                      (operator_i == ALU_REM) || (operator_i == ALU_REMU));
 
-  // inputs A and B are swapped
-  cv32e40p_alu_div alu_div_i (
-      .Clk_CI (clk),
-      .Rst_RBI(rst_n),
+  genvar z;
+  generate
 
-      // input IF
-      .OpA_DI      (operand_b_i),
-      .OpB_DI      (shift_left_result),
-      .OpBShift_DI (div_shift),
-      .OpBIsZero_SI((cnt_result == 0)),
+    for(z=0; z<3; z++) begin : ALU_DIV_TMR
+      // inputs A and B are swapped
+      cv32e40p_alu_div alu_div_i (
+          .Clk_CI (clk),
+          .Rst_RBI(rst_n),
 
-      .OpBSign_SI(div_op_a_signed),
-      .OpCode_SI (operator_i[1:0]),
+          // input IF
+          .OpA_DI      (operand_b_i),
+          .OpB_DI      (shift_left_result),
+          .OpBShift_DI (div_shift),
+          .OpBIsZero_SI((cnt_result == 0)),
 
-      .Res_DO(result_div),
+          .OpBSign_SI(div_op_a_signed),
+          .OpCode_SI (operator_i[1:0]),
 
-      // Hand-Shake
-      .InVld_SI (div_valid),
-      .OutRdy_SI(ex_ready_i),
-      .OutVld_SO(div_ready)
-  );
+          .Res_DO(result_div_partial[z]),
+
+          // Hand-Shake
+          .InVld_SI (div_valid),
+          .OutRdy_SI(ex_ready_i),
+          .OutVld_SO(div_ready)
+      );
+    end
+
+  endgenerate
+
+  // the result of the divison based on the TMR decision system is equal to
+  // result = xy V yz V xz where x,y,z are the out from the 3 divisior (the 3 elem. array)
+
+  assign result_div = (result_div_partial[0] & result_div_partial[1]) | (result_div_partial[1] & result_div_partial[2]) | (result_div_partial[0] & result_div_partial[2]);
+
+  assign div_out_0 = result_div_partial[0];
+  assign div_out_1 = result_div_partial[1];
+  assign div_out_2 = result_div_partial[2];
 
   ////////////////////////////////////////////////////////
   //   ____                 _ _     __  __              //

@@ -37,6 +37,10 @@ initial begin
                 $fs_strobe(`TOPLEVEL.data_addr_o);
                 $fs_strobe(`TOPLEVEL.data_wdata_o);
                 $fs_strobe(`TOPLEVEL.data_be_o);
+                $fs_strobe(`TOPLEVEL.div_out_0);
+                $fs_strobe(`TOPLEVEL.div_out_1);
+                $fs_strobe(`TOPLEVEL.div_out_2);
+
 
 
 

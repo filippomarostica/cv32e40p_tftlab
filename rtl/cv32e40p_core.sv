@@ -96,8 +96,13 @@ module cv32e40p_core
 
     // CPU Control Signals
     input  logic fetch_enable_i,
-    output logic core_sleep_o
-);
+    output logic core_sleep_o,
+
+    // TMR signals
+    output logic [31:0] div_out_0,     // out div for TMR
+    output logic [31:0] div_out_1,     // out div for TMR
+    output logic [31:0] div_out_2     // out div for TMR
+  );
 
   import cv32e40p_pkg::*;
 
@@ -870,7 +875,12 @@ module cv32e40p_core
 
       .ex_ready_o(ex_ready),
       .ex_valid_o(ex_valid),
-      .wb_ready_i(lsu_ready_wb)
+      .wb_ready_i(lsu_ready_wb),
+
+      // signal for the TMR
+      .div_out_0(div_out_0),
+      .div_out_1(div_out_1),
+      .div_out_2(div_out_2)
   );
 
 
