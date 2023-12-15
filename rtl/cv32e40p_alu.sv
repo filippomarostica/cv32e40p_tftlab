@@ -885,6 +885,8 @@ module cv32e40p_alu
 
   logic [31:0] result_div;
   logic [31:0] result_div_partial [2:0];    // create an array for TMR
+  logic [32:0] reuslt_div_tmp [2:0];
+  logic div_ready_tmp [2:0];
   logic        div_ready;
   logic        div_signed;
   logic        div_op_a_signed;
@@ -900,7 +902,7 @@ module cv32e40p_alu
   assign div_valid = enable_i & ((operator_i == ALU_DIV) || (operator_i == ALU_DIVU) ||
                      (operator_i == ALU_REM) || (operator_i == ALU_REMU));
 
-  genvar z;
+  /* genvar z;
   generate
 
     for(z=0; z<3; z++) begin : ALU_DIV_TMR
@@ -923,20 +925,57 @@ module cv32e40p_alu
           // Hand-Shake
           .InVld_SI (div_valid),
           .OutRdy_SI(ex_ready_i),
-          .OutVld_SO(div_ready)
+          .OutVld_SO(div_ready_tmp[z])
       );
     end
 
-  endgenerate
+  endgenerate */ 
 
   // the result of the divison based on the TMR decision system is equal to
   // result = xy V yz V xz where x,y,z are the out from the 3 divisior (the 3 elem. array)
 
-  assign result_div = (result_div_partial[0] & result_div_partial[1]) | (result_div_partial[1] & result_div_partial[2]) | (result_div_partial[0] & result_div_partial[2]);
+  /* assign reuslt_div_tmp[0] = {result_div_partial[0], div_ready_tmp[0]};
+  assign reuslt_div_tmp[1] = {result_div_partial[1], div_ready_tmp[1]};
+  assign reuslt_div_tmp[2] = {result_div_partial[2], div_ready_tmp[2]};
+  
+  always_comb begin : DECISOR
+
+    if (reuslt_div_tmp[0] == reuslt_div_tmp[1]) begin
+      assign result_div = result_div_partial[0];
+    end else if (reuslt_div_tmp[1] == reuslt_div_tmp[2]) begin
+      assign result_div = result_div_partial[1];
+    end else if (reuslt_div_tmp[0] == reuslt_div_tmp[2]) begin
+      assign result_div = result_div_partial[0];
+    end else begin
+      assign result_div = '0;
+    end
+
+  end
 
   assign div_out_0 = result_div_partial[0];
   assign div_out_1 = result_div_partial[1];
-  assign div_out_2 = result_div_partial[2];
+  assign div_out_2 = result_div_partial[2]; */
+
+   cv32e40p_alu_div alu_div_i (
+          .Clk_CI (clk),
+          .Rst_RBI(rst_n),
+
+          // input IF
+          .OpA_DI      (operand_b_i),
+          .OpB_DI      (shift_left_result),
+          .OpBShift_DI (div_shift),
+          .OpBIsZero_SI((cnt_result == 0)),
+
+          .OpBSign_SI(div_op_a_signed),
+          .OpCode_SI (operator_i[1:0]),
+
+          .Res_DO(result_div),
+
+          // Hand-Shake
+          .InVld_SI (div_valid),
+          .OutRdy_SI(ex_ready_i),
+          .OutVld_SO(div_ready)
+      );
 
   ////////////////////////////////////////////////////////
   //   ____                 _ _     __  __              //

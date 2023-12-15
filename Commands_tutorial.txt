@@ -1,4 +1,8 @@
+
+Esegui solo qunando cambia RTL
 make questa/compile         -> to compile the rtl design and verify it works
+
+
 make synthesis/nangate45    -> synthesis of the design
 make questa/lsim/gate/shell -> gate lev simulation
 make zoix/fgen/saf          -> generate stack at fault file
