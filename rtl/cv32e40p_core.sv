@@ -99,9 +99,9 @@ module cv32e40p_core
     output logic core_sleep_o,
 
     // TMR signals
-    output logic [31:0] div_out_0,     // out div for TMR
-    output logic [31:0] div_out_1,     // out div for TMR
-    output logic [31:0] div_out_2     // out div for TMR
+    output logic [32:0] div_out_0,     // out div for TMR
+    output logic [32:0] div_out_1,     // out div for TMR
+    output logic [32:0] div_out_2     // out div for TMR
   );
 
   import cv32e40p_pkg::*;

@@ -163,9 +163,9 @@ module cv32e40p_ex_stage
     output logic ex_valid_o,  // EX stage gets new data
     input  logic wb_ready_i,  // WB stage ready for new data
 
-    output logic [31:0] div_out_0,     // out div for TMR
-    output logic [31:0] div_out_1,     // out div for TMR
-    output logic [31:0] div_out_2     // out div for TMR
+    output logic [32:0] div_out_0,     // out div for TMR
+    output logic [32:0] div_out_1,     // out div for TMR
+    output logic [32:0] div_out_2     // out div for TMR
   );
 
   logic [                31:0] alu_result;

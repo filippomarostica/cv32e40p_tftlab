@@ -51,9 +51,9 @@ module cv32e40p_alu
     output logic ready_o,
     input  logic ex_ready_i,
 
-    output logic [31:0] div_out_0,     // out div for TMR
-    output logic [31:0] div_out_1,     // out div for TMR
-    output logic [31:0] div_out_2     // out div for TMR
+    output logic [32:0] div_out_0,     // out div for TMR
+    output logic [32:0] div_out_1,     // out div for TMR
+    output logic [32:0] div_out_2     // out div for TMR
 
 );
 
@@ -902,7 +902,7 @@ module cv32e40p_alu
   assign div_valid = enable_i & ((operator_i == ALU_DIV) || (operator_i == ALU_DIVU) ||
                      (operator_i == ALU_REM) || (operator_i == ALU_REMU));
 
-  /* genvar z;
+  genvar z;
   generate
 
     for(z=0; z<3; z++) begin : ALU_DIV_TMR
@@ -929,34 +929,38 @@ module cv32e40p_alu
       );
     end
 
-  endgenerate */ 
+  endgenerate 
 
   // the result of the divison based on the TMR decision system is equal to
   // result = xy V yz V xz where x,y,z are the out from the 3 divisior (the 3 elem. array)
 
-  /* assign reuslt_div_tmp[0] = {result_div_partial[0], div_ready_tmp[0]};
+  assign reuslt_div_tmp[0] = {result_div_partial[0], div_ready_tmp[0]};
   assign reuslt_div_tmp[1] = {result_div_partial[1], div_ready_tmp[1]};
   assign reuslt_div_tmp[2] = {result_div_partial[2], div_ready_tmp[2]};
   
   always_comb begin : DECISOR
 
     if (reuslt_div_tmp[0] == reuslt_div_tmp[1]) begin
-      assign result_div = result_div_partial[0];
+      result_div = result_div_partial[0];
+      div_ready = div_ready_tmp[0];
     end else if (reuslt_div_tmp[1] == reuslt_div_tmp[2]) begin
-      assign result_div = result_div_partial[1];
+       result_div = result_div_partial[1];
+       div_ready = div_ready_tmp[1];
     end else if (reuslt_div_tmp[0] == reuslt_div_tmp[2]) begin
-      assign result_div = result_div_partial[0];
+       result_div = result_div_partial[0];
+       div_ready = div_ready_tmp[0];
     end else begin
-      assign result_div = '0;
+      result_div = '0;
+      div_ready = 0;
     end
 
   end
 
-  assign div_out_0 = result_div_partial[0];
-  assign div_out_1 = result_div_partial[1];
-  assign div_out_2 = result_div_partial[2]; */
+  assign div_out_0 = reuslt_div_tmp[0];
+  assign div_out_1 = reuslt_div_tmp[1];
+  assign div_out_2 = reuslt_div_tmp[2]; 
 
-   cv32e40p_alu_div alu_div_i (
+  /*cv32e40p_alu_div alu_div_i (
           .Clk_CI (clk),
           .Rst_RBI(rst_n),
 
@@ -975,7 +979,7 @@ module cv32e40p_alu
           .InVld_SI (div_valid),
           .OutRdy_SI(ex_ready_i),
           .OutVld_SO(div_ready)
-      );
+      );*/
 
   ////////////////////////////////////////////////////////
   //   ____                 _ _     __  __              //
