@@ -55,7 +55,11 @@ RTLSRC_FPNEW		  := $(filter-out $(RTLSRC_HOME)/rtl/fpnew/src/fpnew_pkg.sv, $(wil
 RTLSRC_VLOG_TB_TOP	  := $(basename $(notdir $(RTLSRC_TB_TOP)))
 RTLSRC_VOPT_TB_TOP	  := $(addsuffix _vopt, $(RTLSRC_VLOG_TB_TOP))
 
+# ============== LAUNCH EVERYTHING ====================
 
+start_all:
+	
+	bash syn/all.sh
 
 
 # ============== HELPERS ==============================
