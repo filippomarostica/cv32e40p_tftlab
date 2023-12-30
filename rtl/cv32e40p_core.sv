@@ -102,7 +102,7 @@ module cv32e40p_core
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
     output logic [32:0] div_out_2     // out div for TMR
-  );
+);
 
   import cv32e40p_pkg::*;
 
@@ -737,7 +737,8 @@ module cv32e40p_core
 
       .perf_imiss_i(perf_imiss),
       .mcounteren_i(mcounteren)
-  );
+
+);
 
 
   /////////////////////////////////////////////////////

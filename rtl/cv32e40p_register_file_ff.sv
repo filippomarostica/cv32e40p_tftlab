@@ -60,6 +60,7 @@ module cv32e40p_register_file #(
     input logic [ADDR_WIDTH-1:0] waddr_b_i,
     input logic [DATA_WIDTH-1:0] wdata_b_i,
     input logic                  we_b_i
+
 );
 
   // number of integer registers
@@ -69,10 +70,16 @@ module cv32e40p_register_file #(
   localparam NUM_TOT_WORDS = FPU ? (ZFINX ? NUM_WORDS : NUM_WORDS + NUM_FP_WORDS) : NUM_WORDS;
 
   // integer register file
-  logic [    NUM_WORDS-1:0][DATA_WIDTH-1:0] mem;
+  //logic [    NUM_WORDS-1:0][DATA_WIDTH-1:0] mem;
+
+  // new signal for parity
+  logic [    NUM_WORDS-1:0][DATA_WIDTH:0] mem;
 
   // fp register file
-  logic [ NUM_FP_WORDS-1:0][DATA_WIDTH-1:0] mem_fp;
+  // logic [ NUM_FP_WORDS-1:0][DATA_WIDTH-1:0] mem_fp;
+
+  // new sinal for parity
+  logic [ NUM_FP_WORDS-1:0][DATA_WIDTH:0] mem_fp;
 
   // masked write addresses
   logic [   ADDR_WIDTH-1:0]                 waddr_a;
@@ -82,14 +89,35 @@ module cv32e40p_register_file #(
   logic [NUM_TOT_WORDS-1:0]                 we_a_dec;
   logic [NUM_TOT_WORDS-1:0]                 we_b_dec;
 
+  // temp signals for storing the target read address
+  logic [DATA_WIDTH:0] mem_data_a, mem_data_b, mem_data_c;
+  logic [DATA_WIDTH:0] mem_data_a_check, mem_data_b_check, mem_data_c_check;
+  logic read_a, read_b, read_c;
 
+  
   //-----------------------------------------------------------------------------
   //-- READ : Read address decoder RAD
   //-----------------------------------------------------------------------------
-  assign rdata_a_o = raddr_a_i[5] ? mem_fp[raddr_a_i[4:0]] : mem[raddr_a_i[4:0]];
-  assign rdata_b_o = raddr_b_i[5] ? mem_fp[raddr_b_i[4:0]] : mem[raddr_b_i[4:0]];
-  assign rdata_c_o = raddr_c_i[5] ? mem_fp[raddr_c_i[4:0]] : mem[raddr_c_i[4:0]];
 
+  always_comb begin
+
+    // these datas contain the parity as LSB
+    mem_data_a <= raddr_a_i[5] ? mem_fp[raddr_a_i[4:0]] : mem[raddr_a_i[4:0]];
+    mem_data_b <= raddr_b_i[5] ? mem_fp[raddr_b_i[4:0]] : mem[raddr_b_i[4:0]];
+    mem_data_c <= raddr_c_i[5] ? mem_fp[raddr_c_i[4:0]] : mem[raddr_c_i[4:0]];
+
+    mem_data_a_check <= {mem_data_a[ADDR_WIDTH-1:0], calculate_parity(mem_data_a[ADDR_WIDTH])};
+    mem_data_b_check <= {mem_data_b[ADDR_WIDTH-1:0], calculate_parity(mem_data_b[ADDR_WIDTH])};
+    mem_data_c_check <= {mem_data_c[ADDR_WIDTH-1:0], calculate_parity(mem_data_c[ADDR_WIDTH])};
+
+    read_a <= mem_data_a[0] ~^ mem_data_a_check[0];
+    read_b <= mem_data_b[0] ~^ mem_data_b_check[0];
+    read_c <= mem_data_c[0] ~^ mem_data_c_check[0];
+  end
+
+  assign rdata_a_o = read_a ? mem_data_a[32:1] : '0;
+  assign rdata_b_o = read_b ? mem_data_b[32:1] : '0;
+  assign rdata_c_o = read_c ? mem_data_c[32:1] : '0;
   //-----------------------------------------------------------------------------
   //-- WRITE : Write Address Decoder (WAD), combinatorial process
   //-----------------------------------------------------------------------------
@@ -116,10 +144,10 @@ module cv32e40p_register_file #(
     always_ff @(posedge clk or negedge rst_n) begin
       if (~rst_n) begin
         // R0 is nil
-        mem[0] <= 32'b0;
+        mem[0] <= {32'b0, 1'b0};    // when reset put parity bit = 0
       end else begin
         // R0 is nil
-        mem[0] <= 32'b0;
+        mem[0] <= {32'b0, 1'b0};    // when reset put parity bit = 0
       end
     end
 
@@ -128,10 +156,10 @@ module cv32e40p_register_file #(
 
       always_ff @(posedge clk, negedge rst_n) begin : register_write_behavioral
         if (rst_n == 1'b0) begin
-          mem[i] <= 32'b0;
+          mem[i] <= {32'b0, 1'b0};     // when reset put parity bit = 0
         end else begin
-          if (we_b_dec[i] == 1'b1) mem[i] <= wdata_b_i;
-          else if (we_a_dec[i] == 1'b1) mem[i] <= wdata_a_i;
+          if (we_b_dec[i] == 1'b1) mem[i] <= {wdata_b_i, calculate_parity(wdata_b_i)};
+          else if (we_a_dec[i] == 1'b1) mem[i] <= {wdata_a_i, calculate_parity(wdata_a_i)};
         end
       end
 
@@ -142,14 +170,21 @@ module cv32e40p_register_file #(
       for (l = 0; l < NUM_FP_WORDS; l++) begin
         always_ff @(posedge clk, negedge rst_n) begin : fp_regs
           if (rst_n == 1'b0) mem_fp[l] <= '0;
-          else if (we_b_dec[l+NUM_WORDS] == 1'b1) mem_fp[l] <= wdata_b_i;
-          else if (we_a_dec[l+NUM_WORDS] == 1'b1) mem_fp[l] <= wdata_a_i;
+          else if (we_b_dec[l+NUM_WORDS] == 1'b1) mem_fp[l] <= {wdata_b_i, calculate_parity(wdata_b_i)};
+          else if (we_a_dec[l+NUM_WORDS] == 1'b1) mem_fp[l] <= {wdata_a_i, calculate_parity(wdata_a_i)};
         end
       end
     end else begin : gen_no_mem_fp_write
-      assign mem_fp = 'b0;
+      assign mem_fp = {32'b0, 1'b0};
     end
 
   endgenerate
+
+  // Parity function
+  function logic calculate_parity(logic [DATA_WIDTH-1:0] data);
+    logic parity;
+    parity = data[0] ^ data[1] ^ data[2] ^ data[3] ^ data[4] ^ data[5] ^ data[6] ^ data[7] ^ data[8] ^ data[9] ^ data[10] ^ data[11] ^ data[12] ^ data[13] ^ data[14] ^ data[15] ^ data[16] ^ data[17] ^ data[18] ^ data[19] ^ data[20] ^ data[21] ^ data[22] ^ data[23] ^ data[24] ^ data[25] ^ data[26] ^ data[27] ^ data[28] ^ data[29] ^ data[30] ^ data[31];
+    return parity;
+  endfunction
 
 endmodule

@@ -252,6 +252,7 @@ module cv32e40p_id_stage
 
     input logic        perf_imiss_i,
     input logic [31:0] mcounteren_i
+
 );
 
   // Source/Destination register instruction index
@@ -960,6 +961,7 @@ module cv32e40p_id_stage
       .waddr_b_i(regfile_alu_waddr_fw_i),
       .wdata_b_i(regfile_alu_wdata_fw_i),
       .we_b_i   (regfile_alu_we_fw_power_i)
+
   );
 
 
