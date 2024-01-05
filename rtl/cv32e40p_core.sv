@@ -101,7 +101,8 @@ module cv32e40p_core
     // TMR signals
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
-    output logic [32:0] div_out_2     // out div for TMR
+    output logic [32:0] div_out_2,     // out div for TMR
+    output logic [14:0] mem_err_o
 );
 
   import cv32e40p_pkg::*;
@@ -881,7 +882,8 @@ module cv32e40p_core
       // signal for the TMR
       .div_out_0(div_out_0),
       .div_out_1(div_out_1),
-      .div_out_2(div_out_2)
+      .div_out_2(div_out_2),
+      .mem_err_o(mem_err_o)
   );
 
 

@@ -106,13 +106,9 @@ module cv32e40p_register_file #(
     mem_data_b <= raddr_b_i[5] ? mem_fp[raddr_b_i[4:0]] : mem[raddr_b_i[4:0]];
     mem_data_c <= raddr_c_i[5] ? mem_fp[raddr_c_i[4:0]] : mem[raddr_c_i[4:0]];
 
-    mem_data_a_check <= {mem_data_a[ADDR_WIDTH-1:0], calculate_parity(mem_data_a[ADDR_WIDTH])};
-    mem_data_b_check <= {mem_data_b[ADDR_WIDTH-1:0], calculate_parity(mem_data_b[ADDR_WIDTH])};
-    mem_data_c_check <= {mem_data_c[ADDR_WIDTH-1:0], calculate_parity(mem_data_c[ADDR_WIDTH])};
-
-    read_a <= mem_data_a[0] ~^ mem_data_a_check[0];
-    read_b <= mem_data_b[0] ~^ mem_data_b_check[0];
-    read_c <= mem_data_c[0] ~^ mem_data_c_check[0];
+    read_a <= mem_data_a[0] ~^ calculate_parity(mem_data_a[DATA_WIDTH:1]);
+    read_b <= mem_data_b[0] ~^ calculate_parity(mem_data_b[DATA_WIDTH:1]);
+    read_c <= mem_data_c[0] ~^ calculate_parity(mem_data_c[DATA_WIDTH:1]);
   end
 
   assign rdata_a_o = read_a ? mem_data_a[32:1] : '0;

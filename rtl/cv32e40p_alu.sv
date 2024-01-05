@@ -53,8 +53,8 @@ module cv32e40p_alu
 
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
-    output logic [32:0] div_out_2     // out div for TMR
-
+    output logic [32:0] div_out_2,     // out div for TMR
+    output logic [14:0] mem_err_o
 );
 
   logic [31:0] operand_a_rev;
@@ -925,7 +925,8 @@ module cv32e40p_alu
           // Hand-Shake
           .InVld_SI (div_valid),
           .OutRdy_SI(ex_ready_i),
-          .OutVld_SO(div_ready_tmp[z])
+          .OutVld_SO(div_ready_tmp[z]),
+          .mem_err_o(mem_err_o[5*z+4:5*z])
       );
     end
 

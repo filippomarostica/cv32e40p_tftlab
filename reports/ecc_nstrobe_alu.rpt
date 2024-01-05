@@ -1,0 +1,65 @@
+Version("1.1")
+Date("01/05/24 16:31:49")
+User("s319908")
+Tool("FMGR")
+Info("  Type:    Fault Coverage Report")
+Info("  Version: T-2022.06-SP2 (64-bit, Nov 15 2022)")
+Info("  Models:  All")
+Info("  Classes: All")
+
+FunctionalBlocks{
+     1 design {
+           1  sbst 0ps {F:6256 ND:45 DD:359 PD:36 NC:368 NO:4670 NS:778}
+    }
+}
+
+FaultInfo{
+    FubNum;
+    TestNum;
+    Attempts;
+    NumPot;
+}
+
+FaultList{
+
+Total           ND            DD           PD            NC             NO            NS Scope
+----- ------------ ------------- ------------ ------------- -------------- ------------- -----
+ 6256 45   (0.72%) 359   (5.74%) 36   (0.58%) 368   (5.88%) 4670  (74.65%) 778  (12.44%) cv32e40p_top
+ 6256 45   (0.72%) 359   (5.74%) 36   (0.58%) 368   (5.88%) 4670  (74.65%) 778  (12.44%) -core_i
+ 6256 45   (0.72%) 359   (5.74%) 36   (0.58%) 368   (5.88%) 4670  (74.65%) 778  (12.44%) --ex_stage_i
+ 6256 45   (0.72%) 359   (5.74%) 36   (0.58%) 368   (5.88%) 4670  (74.65%) 778  (12.44%) ---alu_i
+ 6256 45   (0.72%) 359   (5.74%) 36   (0.58%) 368   (5.88%) 4670  (74.65%) 778  (12.44%) ----ALU_DIV_TMR_0__alu_div_i (634 hidden instances, 4744 faults)
+  504 34   (6.75%)  64  (12.70%) 34   (6.75%)  64  (12.70%)   64  (12.70%) 244  (48.41%) -----reg_ecc_res (63 hidden instances, 504 faults)
+  504  0   (0.00%)   0   (0.00%)  0   (0.00%)   0   (0.00%)  260  (51.59%) 244  (48.41%) -----reg_ecc_breg (63 hidden instances, 504 faults)
+  504  0   (0.00%)   0   (0.00%)  0   (0.00%)   0   (0.00%)  260  (51.59%) 244  (48.41%) -----reg_ecc_areg (63 hidden instances, 504 faults)
+}
+#------------------------------------------------------------------------------
+# Faults listed:       Prime: 0        Total: 0
+#------------------------------------------------------------------------------
+# Fault Coverage Summary
+#
+#                                        Prime             Total
+#------------------------------------------------------------------------------
+# Total Faults:                           6256              6256
+#
+# Dropped Detected                 DD      359   5.74%       359   5.74%
+# Dropped Potential                PD       36   0.58%        36   0.58%
+# Not Detected                     ND       45   0.72%        45   0.72%
+# Not Strobed                      NS      778  12.44%       778  12.44%
+# Not Observed                     NO     4670  74.65%      4670  74.65%
+# Not Controlled                   NC      368   5.88%       368   5.88%
+#
+# Faults not detected yet:
+#   Not simulated yet:                    5816  92.97%      5816  92.97%
+#   Simulated 1 to 5 times:                 81   1.29%        81   1.29%
+#   Simulated 6 to 10 times:                 0   0.00%         0   0.00%
+#   Simulated > 10 times:                    0   0.00%         0   0.00%
+#
+# Faults potentially detected:
+#   Possible 1 to 5 times:                  36   0.58%        36   0.58%
+#   Possible 6 to 10 times:                  0   0.00%         0   0.00%
+#   Possible > 10 times:                     0   0.00%         0   0.00%
+#
+# Test Coverage                                  6.03%             6.03%
+# Fault Coverage                                 6.03%             6.03%
+#------------------------------------------------------------------------------

@@ -43,7 +43,7 @@ initial begin
                 $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_a_o);
                 $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_b_o);
                 $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_c_o);
-
+                $fs_strobe(`TOPLEVEL.mem_err_o);
 
                 #10000; // TMAX Strobe period
         end

@@ -42,13 +42,14 @@ module cv32e40p_alu_div #(
     // output IF
     input  logic                   OutRdy_SI,
     output logic                   OutVld_SO,
-    output logic [    C_WIDTH-1:0] Res_DO
+    output logic [    C_WIDTH-1:0] Res_DO,
+    output logic [            4:0] mem_err_o
 );
 
   ///////////////////////////////////////////////////////////////////////////////
   // signal declarations
   ///////////////////////////////////////////////////////////////////////////////
-
+  
   logic [C_WIDTH-1:0] ResReg_DP, ResReg_DN;
   logic [C_WIDTH-1:0] ResReg_DP_rev;
   logic [C_WIDTH-1:0] AReg_DP, AReg_DN;
@@ -190,22 +191,36 @@ module cv32e40p_alu_div #(
     ABComp_S, ResReg_DP[$high(ResReg_DP):1]
   } : ResReg_DP;
 
+
+
+
+  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_state (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(State_SN),.data_o(State_SP),.mem_err_o(mem_err_o[0]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_areg (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(AReg_DN),.data_o(AReg_DP),.mem_err_o(mem_err_o[1]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_breg (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(BReg_DN),.data_o(BReg_DP),.mem_err_o(mem_err_o[2]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_res (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(ResReg_DN),.data_o(ResReg_DP),.mem_err_o(mem_err_o[3]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_LOG_WIDTH)) reg_ecc_cnt (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(Cnt_DN),.data_o(Cnt_DP),.mem_err_o(mem_err_o[4]));
+
   always_ff @(posedge Clk_CI or negedge Rst_RBI) begin : p_regs
     if (~Rst_RBI) begin
+      /*
+
       State_SP   <= IDLE;
+      
       AReg_DP    <= '0;
       BReg_DP    <= '0;
       ResReg_DP  <= '0;
-      Cnt_DP     <= '0;
+      Cnt_DP     <= '0;*/
       RemSel_SP  <= 1'b0;
       CompInv_SP <= 1'b0;
       ResInv_SP  <= 1'b0;
     end else begin
+      /*
       State_SP   <= State_SN;
+      
       AReg_DP    <= AReg_DN;
       BReg_DP    <= BReg_DN;
       ResReg_DP  <= ResReg_DN;
-      Cnt_DP     <= Cnt_DN;
+      Cnt_DP     <= Cnt_DN;*/
       RemSel_SP  <= RemSel_SN;
       CompInv_SP <= CompInv_SN;
       ResInv_SP  <= ResInv_SN;

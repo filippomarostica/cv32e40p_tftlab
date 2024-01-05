@@ -69,7 +69,8 @@ module cv32e40p_top #(
     //TMR signal
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
-    output logic [32:0] div_out_2     // out div for TMR
+    output logic [32:0] div_out_2,     // out div for TMR
+    output logic [14:0] mem_err_o
 
 );
 
@@ -149,7 +150,8 @@ module cv32e40p_top #(
       // signal for the TMR
       .div_out_0(div_out_0),
       .div_out_1(div_out_1),
-      .div_out_2(div_out_2)
+      .div_out_2(div_out_2),
+      .mem_err_o(mem_err_o)
 
   );
 
