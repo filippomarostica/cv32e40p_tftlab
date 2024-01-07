@@ -251,7 +251,8 @@ module cv32e40p_id_stage
     output logic mhpmevent_pipe_stall_o,
 
     input logic        perf_imiss_i,
-    input logic [31:0] mcounteren_i
+    input logic [31:0] mcounteren_i,
+    output logic [2:0] regfile_err_o
 
 );
 
@@ -960,7 +961,8 @@ module cv32e40p_id_stage
       // Write port b
       .waddr_b_i(regfile_alu_waddr_fw_i),
       .wdata_b_i(regfile_alu_wdata_fw_i),
-      .we_b_i   (regfile_alu_we_fw_power_i)
+      .we_b_i   (regfile_alu_we_fw_power_i),
+      .regfile_err_o(regfile_err_o)
 
   );
 

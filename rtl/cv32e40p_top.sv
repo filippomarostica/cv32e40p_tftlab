@@ -70,7 +70,8 @@ module cv32e40p_top #(
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
     output logic [32:0] div_out_2,     // out div for TMR
-    output logic [14:0] mem_err_o
+    output logic [14:0] mem_err_o,
+    output logic [2:0] regfile_err_o
 
 );
 
@@ -151,7 +152,8 @@ module cv32e40p_top #(
       .div_out_0(div_out_0),
       .div_out_1(div_out_1),
       .div_out_2(div_out_2),
-      .mem_err_o(mem_err_o)
+      .mem_err_o(mem_err_o),
+      .regfile_err_o(regfile_err_o)
 
   );
 

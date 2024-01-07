@@ -39,12 +39,9 @@ initial begin
                 $fs_strobe(`TOPLEVEL.data_be_o);
                 $fs_strobe(`TOPLEVEL.div_out_0);
                 $fs_strobe(`TOPLEVEL.div_out_1);
-                $fs_strobe(`TOPLEVEL.div_out_2);
-                $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_a_o);
-                $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_b_o);
-                $fs_strobe(`TOPLEVEL.core_i.id_stage_i.register_file_i.rdata_c_o);
+                $fs_strobe(`TOPLEVEL.div_out_2);    
                 $fs_strobe(`TOPLEVEL.mem_err_o);
-
+                $fs_strobe(`TOPLEVEL.regfile_err_o);
                 #10000; // TMAX Strobe period
         end
 

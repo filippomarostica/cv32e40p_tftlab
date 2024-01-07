@@ -102,7 +102,8 @@ module cv32e40p_core
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
     output logic [32:0] div_out_2,     // out div for TMR
-    output logic [14:0] mem_err_o
+    output logic [14:0] mem_err_o,
+    output logic [2:0] regfile_err_o
 );
 
   import cv32e40p_pkg::*;
@@ -737,7 +738,8 @@ module cv32e40p_core
       .mhpmevent_pipe_stall_o  (mhpmevent_pipe_stall),
 
       .perf_imiss_i(perf_imiss),
-      .mcounteren_i(mcounteren)
+      .mcounteren_i(mcounteren),
+      .regfile_err_o(regfile_err_o)
 
 );
 

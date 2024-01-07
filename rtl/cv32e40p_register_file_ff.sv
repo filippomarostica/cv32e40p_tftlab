@@ -59,7 +59,8 @@ module cv32e40p_register_file #(
     // Write port W2
     input logic [ADDR_WIDTH-1:0] waddr_b_i,
     input logic [DATA_WIDTH-1:0] wdata_b_i,
-    input logic                  we_b_i
+    input logic                  we_b_i,
+    output logic [2:0] regfile_err_o
 
 );
 
@@ -110,7 +111,9 @@ module cv32e40p_register_file #(
     read_b <= mem_data_b[0] ~^ calculate_parity(mem_data_b[DATA_WIDTH:1]);
     read_c <= mem_data_c[0] ~^ calculate_parity(mem_data_c[DATA_WIDTH:1]);
   end
-
+  assign regfile_err_o[0] = read_a;
+  assign regfile_err_o[1] = read_b;
+  assign regfile_err_o[2] = read_c;
   assign rdata_a_o = read_a ? mem_data_a[32:1] : '0;
   assign rdata_b_o = read_b ? mem_data_b[32:1] : '0;
   assign rdata_c_o = read_c ? mem_data_c[32:1] : '0;
