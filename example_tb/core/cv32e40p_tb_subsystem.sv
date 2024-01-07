@@ -122,7 +122,8 @@ module cv32e40p_tb_subsystem #(
       .div_out_2(),    // out div for TMR
       .mult_out_0(),
       .mult_out_1(),
-      .mult_out_2()
+      .mult_out_2(),
+      .cs_error()
   );
 
 

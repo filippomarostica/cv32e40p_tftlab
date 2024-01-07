@@ -360,11 +360,6 @@ assign result_mult_tmp[2] = {result_mult_partial[2], multicycle_tmp[2], mulh_act
   
  always_comb begin : DECISOR
 
-  if (result_mult_tmp[0] == result_mult_tmp[1] && result_mult_tmp[0] == result_mult_tmp[2]) begin
-
-
-  end
-
     if (result_mult_tmp[0] == result_mult_tmp[1]) begin
       mult_result = result_mult_tmp[0];
       mult_multicycle_o = multicycle_tmp[0];
@@ -386,12 +381,12 @@ assign result_mult_tmp[2] = {result_mult_partial[2], multicycle_tmp[2], mulh_act
       mulh_active = '0; 
       mult_ready = '0;
     end
- end
+
+  end
 
   assign mult_out_0 = result_mult_tmp[0];
   assign mult_out_1 = result_mult_tmp[1];
   assign mult_out_2 = result_mult_tmp[2];
-
 
   /*cv32e40p_mult mult_i (
       .clk  (clk),

@@ -1,6 +1,6 @@
 ###################################################################
 
-# Created by write_sdc on Sun Jan  7 15:49:43 2024
+# Created by write_sdc on Sun Jan  7 18:12:35 2024
 
 ###################################################################
 set sdc_version 2.1
@@ -589,4 +589,5 @@ set_output_delay -clock clk_i  3  [get_ports {mult_out_2[3]}]
 set_output_delay -clock clk_i  3  [get_ports {mult_out_2[2]}]
 set_output_delay -clock clk_i  3  [get_ports {mult_out_2[1]}]
 set_output_delay -clock clk_i  3  [get_ports {mult_out_2[0]}]
+set_output_delay -clock clk_i  3  [get_ports cs_error]
 set_output_delay -clock clk_i  1.25  [get_ports core_sleep_o]

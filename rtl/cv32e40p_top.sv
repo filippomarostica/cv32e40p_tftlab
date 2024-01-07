@@ -72,7 +72,10 @@ module cv32e40p_top #(
     output logic [32:0] div_out_2,     // out div for TMR
     output logic [34:0] mult_out_0,
     output logic [34:0] mult_out_1,
-    output logic [34:0] mult_out_2
+    output logic [34:0] mult_out_2,
+
+    // Error signals
+    output logic cs_error
 );
 
   import cv32e40p_apu_core_pkg::*;
@@ -154,7 +157,10 @@ module cv32e40p_top #(
       .div_out_2(div_out_2),
       .mult_out_0(mult_out_0),
       .mult_out_1(mult_out_1),
-      .mult_out_2(mult_out_2)
+      .mult_out_2(mult_out_2),
+
+      // Error signals
+      .cs_error(cs_error)
   );
 
   generate
