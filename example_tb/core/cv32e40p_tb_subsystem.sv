@@ -119,7 +119,10 @@ module cv32e40p_tb_subsystem #(
       .core_sleep_o  (core_sleep_o),
       .div_out_0(),    // out div for TMR
       .div_out_1(),    // out div for TMR
-      .div_out_2()     // out div for TMR
+      .div_out_2(),    // out div for TMR
+      .mult_out_0(),
+      .mult_out_1(),
+      .mult_out_2()
   );
 
 

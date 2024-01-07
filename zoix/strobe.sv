@@ -40,8 +40,10 @@ initial begin
                 $fs_strobe(`TOPLEVEL.div_out_0);
                 $fs_strobe(`TOPLEVEL.div_out_1);
                 $fs_strobe(`TOPLEVEL.div_out_2);
-
-
+                $fs_strobe(`TOPLEVEL.mult_out_0);
+                $fs_strobe(`TOPLEVEL.mult_out_1);
+                $fs_strobe(`TOPLEVEL.mult_out_2);
+                // $fs_strobe('TOPLEVEL.core_i.ex_stage_i.alu_i.result_div);                
 
 
                 #10000; // TMAX Strobe period

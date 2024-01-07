@@ -84,6 +84,10 @@ module cv32e40p_ex_stage
 
     input logic [1:0] ctrl_transfer_insn_in_dec_i,
 
+    output logic [34:0] mult_out_0,
+    output logic [34:0] mult_out_1,
+    output logic [34:0] mult_out_2,
+
     // FPU signals
     output logic fpu_fflags_we_o,
     output logic [APU_NUSFLAGS_CPU-1:0] fpu_fflags_o,
@@ -305,7 +309,91 @@ module cv32e40p_ex_stage
   //                                                            //
   ////////////////////////////////////////////////////////////////
 
-  cv32e40p_mult mult_i (
+  logic [31:0] result_mult_partial [2:0];    // create an array for TMR
+  logic multicycle_tmp [2:0];
+  logic mulh_active_tmp [2:0];
+  logic mult_ready_tmp [2:0];
+
+  logic [34:0] result_mult_tmp [2:0];
+
+  genvar z;
+  generate
+
+    for(z=0; z<3; z++) begin : EXE_MULT_TMR
+      cv32e40p_mult mult_i (
+      .clk  (clk),
+      .rst_n(rst_n),
+
+      .enable_i  (mult_en_i),
+      .operator_i(mult_operator_i),
+
+      .short_subword_i(mult_sel_subword_i),
+      .short_signed_i (mult_signed_mode_i),
+
+      .op_a_i(mult_operand_a_i),
+      .op_b_i(mult_operand_b_i),
+      .op_c_i(mult_operand_c_i),
+      .imm_i (mult_imm_i),
+
+      .dot_op_a_i  (mult_dot_op_a_i),
+      .dot_op_b_i  (mult_dot_op_b_i),
+      .dot_op_c_i  (mult_dot_op_c_i),
+      .dot_signed_i(mult_dot_signed_i),
+      .is_clpx_i   (mult_is_clpx_i),
+      .clpx_shift_i(mult_clpx_shift_i),
+      .clpx_img_i  (mult_clpx_img_i),
+
+      .result_o(result_mult_partial[z]),
+
+      .multicycle_o (multicycle_tmp[z]),
+      .mulh_active_o(mulh_active_tmp[z]),
+      .ready_o      (mult_ready_tmp[z]),
+      .ex_ready_i   (ex_ready_o)
+      );
+    end
+
+  endgenerate 
+
+assign result_mult_tmp[0] = {result_mult_partial[0], multicycle_tmp[0], mulh_active_tmp[0], mult_ready_tmp[0]};
+assign result_mult_tmp[1] = {result_mult_partial[1], multicycle_tmp[1], mulh_active_tmp[1], mult_ready_tmp[1]};
+assign result_mult_tmp[2] = {result_mult_partial[2], multicycle_tmp[2], mulh_active_tmp[2], mult_ready_tmp[2]};
+  
+ always_comb begin : DECISOR
+
+  if (result_mult_tmp[0] == result_mult_tmp[1] && result_mult_tmp[0] == result_mult_tmp[2]) begin
+
+
+  end
+
+    if (result_mult_tmp[0] == result_mult_tmp[1]) begin
+      mult_result = result_mult_tmp[0];
+      mult_multicycle_o = multicycle_tmp[0];
+      mulh_active = mulh_active_tmp[0]; 
+      mult_ready = mult_ready_tmp[0];
+    end else if (result_mult_tmp[1] == result_mult_tmp[2]) begin
+       mult_result = result_mult_tmp[1];
+       mult_multicycle_o = multicycle_tmp[1];
+       mulh_active = mulh_active_tmp[1]; 
+       mult_ready = mult_ready_tmp[1];
+    end else if (result_mult_tmp[0] == result_mult_tmp[2]) begin
+       mult_result = result_mult_tmp[0];
+       mult_multicycle_o = multicycle_tmp[0];
+       mulh_active = mulh_active_tmp[0]; 
+       mult_ready = mult_ready_tmp[0];
+    end else begin
+      mult_result = '0;
+      mult_multicycle_o = '0;
+      mulh_active = '0; 
+      mult_ready = '0;
+    end
+ end
+
+  assign mult_out_0 = result_mult_tmp[0];
+  assign mult_out_1 = result_mult_tmp[1];
+  assign mult_out_2 = result_mult_tmp[2];
+
+
+  /*cv32e40p_mult mult_i (
       .clk  (clk),
       .rst_n(rst_n),
 
@@ -334,7 +422,11 @@ module cv32e40p_ex_stage
       .mulh_active_o(mulh_active),
       .ready_o      (mult_ready),
       .ex_ready_i   (ex_ready_o)
-  );
+  );*/
+
+
+
+
 
   generate
     if (FPU == 1) begin : gen_apu

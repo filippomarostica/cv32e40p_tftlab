@@ -76,7 +76,6 @@ module cv32e40p_apu_disp (
   logic       active;
   logic [1:0] apu_lat;
 
-
   logic [2:0] read_deps_req, read_deps_inflight, read_deps_waiting;
   logic [1:0] write_deps_req, write_deps_inflight, write_deps_waiting;
   logic read_dep_req, read_dep_inflight, read_dep_waiting;
