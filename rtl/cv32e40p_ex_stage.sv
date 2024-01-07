@@ -166,7 +166,8 @@ module cv32e40p_ex_stage
     output logic [32:0] div_out_0,     // out div for TMR
     output logic [32:0] div_out_1,     // out div for TMR
     output logic [32:0] div_out_2,     // out div for TMR
-    output logic [14:0] mem_err_o
+    output logic [14:0] mem_err_o,
+    output logic [8:0] tmr_mult_err_o
   );
 
   logic [                31:0] alu_result;
@@ -335,7 +336,8 @@ module cv32e40p_ex_stage
       .multicycle_o (mult_multicycle_o),
       .mulh_active_o(mulh_active),
       .ready_o      (mult_ready),
-      .ex_ready_i   (ex_ready_o)
+      .ex_ready_i   (ex_ready_o),
+      .tmr_mult_err_o (tmr_mult_err_o)
   );
 
   generate

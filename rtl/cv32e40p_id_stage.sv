@@ -251,7 +251,8 @@ module cv32e40p_id_stage
     output logic mhpmevent_pipe_stall_o,
 
     input logic        perf_imiss_i,
-    input logic [31:0] mcounteren_i
+    input logic [31:0] mcounteren_i,
+    output logic [2:0] ecc_err_o
 
 );
 
@@ -943,14 +944,17 @@ module cv32e40p_id_stage
       // Read port a
       .raddr_a_i(regfile_addr_ra_id),
       .rdata_a_o(regfile_data_ra_id),
+      .porta_rerr_o(ecc_err_o[0]),
 
       // Read port b
       .raddr_b_i(regfile_addr_rb_id),
       .rdata_b_o(regfile_data_rb_id),
+      .portb_rerr_o(ecc_err_o[1]),
 
       // Read port c
       .raddr_c_i(regfile_addr_rc_id),
       .rdata_c_o(regfile_data_rc_id),
+      .portc_rerr_o(ecc_err_o[2]),
 
       // Write port a
       .waddr_a_i(regfile_waddr_wb_i),

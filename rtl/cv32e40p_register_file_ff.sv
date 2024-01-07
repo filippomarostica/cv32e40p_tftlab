@@ -42,14 +42,17 @@ module cv32e40p_register_file #(
     //Read port R1
     input  logic [ADDR_WIDTH-1:0] raddr_a_i,
     output logic [DATA_WIDTH-1:0] rdata_a_o,
+    output logic                  porta_rerr_o,
 
     //Read port R2
     input  logic [ADDR_WIDTH-1:0] raddr_b_i,
     output logic [DATA_WIDTH-1:0] rdata_b_o,
+    output logic                  portb_rerr_o,
 
     //Read port R3
     input  logic [ADDR_WIDTH-1:0] raddr_c_i,
     output logic [DATA_WIDTH-1:0] rdata_c_o,
+    output logic                  portc_rerr_o,
 
     // Write port W1
     input logic [ADDR_WIDTH-1:0] waddr_a_i,
@@ -105,7 +108,7 @@ module cv32e40p_register_file #(
     mem_data_a <= raddr_a_i[5] ? mem_fp[raddr_a_i[4:0]] : mem[raddr_a_i[4:0]];
     mem_data_b <= raddr_b_i[5] ? mem_fp[raddr_b_i[4:0]] : mem[raddr_b_i[4:0]];
     mem_data_c <= raddr_c_i[5] ? mem_fp[raddr_c_i[4:0]] : mem[raddr_c_i[4:0]];
-
+    //parity check
     read_a <= mem_data_a[0] ~^ calculate_parity(mem_data_a[DATA_WIDTH:1]);
     read_b <= mem_data_b[0] ~^ calculate_parity(mem_data_b[DATA_WIDTH:1]);
     read_c <= mem_data_c[0] ~^ calculate_parity(mem_data_c[DATA_WIDTH:1]);
@@ -114,6 +117,10 @@ module cv32e40p_register_file #(
   assign rdata_a_o = read_a ? mem_data_a[32:1] : '0;
   assign rdata_b_o = read_b ? mem_data_b[32:1] : '0;
   assign rdata_c_o = read_c ? mem_data_c[32:1] : '0;
+
+  assign porta_rerr_o = read_a;
+  assign portb_rerr_o = read_b;
+  assign portc_rerr_o = read_c;
   //-----------------------------------------------------------------------------
   //-- WRITE : Write Address Decoder (WAD), combinatorial process
   //-----------------------------------------------------------------------------
