@@ -4,6 +4,7 @@ run/*
 # Ignore all run directories
 logfiles/*
 results/*
+results_old/*
 
 # Ignore synthesis directory
 syn/*
