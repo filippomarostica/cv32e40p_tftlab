@@ -252,7 +252,8 @@ module cv32e40p_id_stage
 
     input logic        perf_imiss_i,
     input logic [31:0] mcounteren_i,
-    output logic [2:0] ecc_err_o
+    output logic [2:0] ecc_err_o,
+    output logic [11:0] id_st_error
 
 );
 
@@ -1640,9 +1641,22 @@ module cv32e40p_id_stage
   // that this count will correspond to the retired isntructions count.
   assign minstret = id_valid_o && is_decoding_o && !(illegal_insn_dec || ebrk_insn_dec || ecall_insn_dec);
 
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_id_valid (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(id_valid_o), .data_o(id_valid_q), .mem_err_o(id_st_error[0]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_minstret (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret), .data_o(mhpmevent_minstret_o), .mem_err_o(id_st_error[1]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_load (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret && data_req_id && !data_we_id), .data_o(mhpmevent_load_o), .mem_err_o(id_st_error[2]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_store (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret && data_req_id && data_we_id), .data_o(mhpmevent_store_o), .mem_err_o(id_st_error[3]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_jump (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret && ((ctrl_transfer_insn_in_id == BRANCH_JAL) || (ctrl_transfer_insn_in_id == BRANCH_JALR))), .data_o(mhpmevent_jump_o), .mem_err_o(id_st_error[4]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_branch (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret && (ctrl_transfer_insn_in_id == BRANCH_COND)), .data_o(mhpmevent_branch_o), .mem_err_o(id_st_error[5]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_compressed (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(minstret && is_compressed_i), .data_o(mhpmevent_compressed_o), .mem_err_o(id_st_error[6]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_branch_taken (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(mhpmevent_branch_o && branch_decision_i), .data_o(mhpmevent_branch_taken_o), .mem_err_o(id_st_error[7]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_jr_stall (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(jr_stall && !halt_id && id_valid_q), .data_o(mhpmevent_jr_stall_o), .mem_err_o(id_st_error[8]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_imiss (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(perf_imiss_i), .data_o(mhpmevent_imiss_o), .mem_err_o(id_st_error[9]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_ld_stall (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(load_stall && !halt_id && id_valid_q), .data_o(mhpmevent_ld_stall_o), .mem_err_o(id_st_error[10]));
+cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_pipe_stall (.clk(clk), .rst_n(rst_n), .enable(1'b1), .data_i(perf_pipeline_stall), .data_o(mhpmevent_pipe_stall_o), .mem_err_o(id_st_error[11]));
+
   always_ff @(posedge clk, negedge rst_n) begin
     if (rst_n == 1'b0) begin
-      id_valid_q               <= 1'b0;
+      /* id_valid_q               <= 1'b0;
       mhpmevent_minstret_o     <= 1'b0;
       mhpmevent_load_o         <= 1'b0;
       mhpmevent_store_o        <= 1'b0;
@@ -1653,10 +1667,10 @@ module cv32e40p_id_stage
       mhpmevent_jr_stall_o     <= 1'b0;
       mhpmevent_imiss_o        <= 1'b0;
       mhpmevent_ld_stall_o     <= 1'b0;
-      mhpmevent_pipe_stall_o   <= 1'b0;
+      mhpmevent_pipe_stall_o   <= 1'b0; */
     end else begin
       // Helper signal
-      id_valid_q <= id_valid_o;
+      /* id_valid_q <= id_valid_o;
       // ID stage counts
       mhpmevent_minstret_o <= minstret;
       mhpmevent_load_o <= minstret && data_req_id && !data_we_id;
@@ -1673,7 +1687,7 @@ module cv32e40p_id_stage
       // Load-use-hazard; do not count stall on flushed instructions (id_valid_q used to only count first cycle)
       mhpmevent_ld_stall_o <= load_stall && !halt_id && id_valid_q;
       // ELW
-      mhpmevent_pipe_stall_o <= perf_pipeline_stall;
+      mhpmevent_pipe_stall_o <= perf_pipeline_stall; */
     end
   end
 

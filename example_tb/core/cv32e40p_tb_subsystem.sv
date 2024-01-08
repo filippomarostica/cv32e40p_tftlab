@@ -121,7 +121,9 @@ module cv32e40p_tb_subsystem #(
       .div_out_1(),    // out div for TMR
       .div_out_2(),    // out div for TMR
       .mem_err_o(),
-      .tmr_mult_err_o()
+      .tmr_mult_err_o(),
+      .l_s_error_o(),
+      .id_st_error()
   );
 
 

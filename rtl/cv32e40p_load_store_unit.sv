@@ -69,7 +69,10 @@ module cv32e40p_load_store_unit #(
     output logic lsu_ready_ex_o,  // LSU ready for new data in EX stage
     output logic lsu_ready_wb_o,  // LSU ready for new data in WB stage
 
-    output logic busy_o
+    output logic busy_o,
+
+    // test with reg ecc
+    output logic [4:0] l_s_error_o 
 );
 
   localparam DEPTH = 2;  // Maximum number of outstanding transactions
@@ -180,22 +183,29 @@ module cv32e40p_load_store_unit #(
   end
 
 
+  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_0 (.clk(clk),.rst_n(rst_n),.enable(ctrl_update),.data_i(data_type_ex_i),.data_o(data_type_q),.mem_err_o(l_s_error_o[0]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_1 (.clk(clk),.rst_n(rst_n),.enable(ctrl_update),.data_i(data_addr_int[1:0]),.data_o(rdata_offset_q),.mem_err_o(l_s_error_o[1]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_2 (.clk(clk),.rst_n(rst_n),.enable(ctrl_update),.data_i(data_sign_ext_ex_i),.data_o(data_sign_ext_q),.mem_err_o(l_s_error_o[2]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_3 (.clk(clk),.rst_n(rst_n),.enable(ctrl_update),.data_i(data_we_ex_i),.data_o(data_we_q),.mem_err_o(l_s_error_o[3]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(1)) reg_ecc_4 (.clk(clk),.rst_n(rst_n),.enable(ctrl_update),.data_i(data_load_event_ex_i),.data_o(data_load_event_q),.mem_err_o(l_s_error_o[4]));
+
+
   // FF for rdata alignment and sign-extension
   always_ff @(posedge clk, negedge rst_n) begin
     if (rst_n == 1'b0) begin
-      data_type_q       <= '0;
+      /*data_type_q       <= '0;
       rdata_offset_q    <= '0;
       data_sign_ext_q   <= '0;
       data_we_q         <= 1'b0;
-      data_load_event_q <= 1'b0;
+      data_load_event_q <= 1'b0;*/
     end
     else if (ctrl_update) // request was granted, we wait for rvalid and can continue to WB
     begin
-      data_type_q       <= data_type_ex_i;
+      /*data_type_q       <= data_type_ex_i;
       rdata_offset_q    <= data_addr_int[1:0];
       data_sign_ext_q   <= data_sign_ext_ex_i;
       data_we_q         <= data_we_ex_i;
-      data_load_event_q <= data_load_event_ex_i;
+      data_load_event_q <= data_load_event_ex_i;  */
     end
   end
 

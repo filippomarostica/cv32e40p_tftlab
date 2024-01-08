@@ -104,7 +104,9 @@ module cv32e40p_core
     output logic [32:0] div_out_2,     // out div for TMR
     output logic [14:0] mem_err_o,
     output logic [2:0]  ecc_err_o,
-    output logic [8:0] tmr_mult_err_o
+    output logic [8:0] tmr_mult_err_o,
+    output logic [4:0] l_s_error_o,
+    output logic [11:0] id_st_error
 );
 
   import cv32e40p_pkg::*;
@@ -740,7 +742,8 @@ module cv32e40p_core
 
       .perf_imiss_i(perf_imiss),
       .mcounteren_i(mcounteren),
-      .ecc_err_o(ecc_err_o)
+      .ecc_err_o(ecc_err_o),
+      .id_st_error(id_st_error)
 
 );
 
@@ -945,7 +948,8 @@ module cv32e40p_core
       .lsu_ready_ex_o(lsu_ready_ex),
       .lsu_ready_wb_o(lsu_ready_wb),
 
-      .busy_o(lsu_busy)
+      .busy_o(lsu_busy),
+      .l_s_error_o(l_s_error_o)
   );
 
   // Tracer signal

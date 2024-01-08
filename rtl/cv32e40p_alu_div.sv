@@ -194,11 +194,11 @@ module cv32e40p_alu_div #(
 
 
 
-  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_state (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(State_SN),.data_o(State_SP),.mem_err_o(mem_err_o[0]));
-  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_areg (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(AReg_DN),.data_o(AReg_DP),.mem_err_o(mem_err_o[1]));
-  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_breg (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(BReg_DN),.data_o(BReg_DP),.mem_err_o(mem_err_o[2]));
-  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_res (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(ResReg_DN),.data_o(ResReg_DP),.mem_err_o(mem_err_o[3]));
-  cv32e40p_reg_ecc #(.DATA_WIDTH(C_LOG_WIDTH)) reg_ecc_cnt (.clk(Clk_CI),.rst_n(Rst_RBI),.data_i(Cnt_DN),.data_o(Cnt_DP),.mem_err_o(mem_err_o[4]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(2)) reg_ecc_state (.clk(Clk_CI),.rst_n(Rst_RBI),.enable(1'b1),.data_i(State_SN),.data_o(State_SP),.mem_err_o(mem_err_o[0]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_areg (.clk(Clk_CI),.rst_n(Rst_RBI),.enable(1'b1),.data_i(AReg_DN),.data_o(AReg_DP),.mem_err_o(mem_err_o[1]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_breg (.clk(Clk_CI),.rst_n(Rst_RBI),.enable(1'b1),.data_i(BReg_DN),.data_o(BReg_DP),.mem_err_o(mem_err_o[2]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_WIDTH)) reg_ecc_res (.clk(Clk_CI),.rst_n(Rst_RBI),.enable(1'b1),.data_i(ResReg_DN),.data_o(ResReg_DP),.mem_err_o(mem_err_o[3]));
+  cv32e40p_reg_ecc #(.DATA_WIDTH(C_LOG_WIDTH)) reg_ecc_cnt (.clk(Clk_CI),.rst_n(Rst_RBI),.enable(1'b1),.data_i(Cnt_DN),.data_o(Cnt_DP),.mem_err_o(mem_err_o[4]));
 
   always_ff @(posedge Clk_CI or negedge Rst_RBI) begin : p_regs
     if (~Rst_RBI) begin
