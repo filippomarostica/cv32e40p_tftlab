@@ -104,7 +104,10 @@ module cv32e40p_core
     output logic [32:0] div_out_2,     // out div for TMR
     output logic [14:0] mem_err_o,
     output logic [2:0]  ecc_err_o,
-    output logic [8:0] tmr_mult_err_o
+    output logic [8:0] tmr_mult_err_o,
+
+     // Error signals
+    output logic cs_error
 );
 
   import cv32e40p_pkg::*;
@@ -962,109 +965,216 @@ module cv32e40p_core
   //   Control and Status Registers   //
   //////////////////////////////////////
 
-  cv32e40p_cs_registers #(
-      .N_HWLP          (N_HWLP),
-      .A_EXTENSION     (A_EXTENSION),
-      .FPU             (FPU),
-      .ZFINX           (ZFINX),
-      .APU             (APU),
-      .PULP_SECURE     (PULP_SECURE),
-      .USE_PMP         (USE_PMP),
-      .N_PMP_ENTRIES   (N_PMP_ENTRIES),
-      .NUM_MHPMCOUNTERS(NUM_MHPMCOUNTERS),
-      .COREV_PULP      (COREV_PULP),
-      .COREV_CLUSTER   (COREV_CLUSTER),
-      .DEBUG_TRIGGER_EN(DEBUG_TRIGGER_EN)
-  ) cs_registers_i (
-      .clk  (clk),
-      .rst_n(rst_ni),
+ logic cs_reg_error;
 
-      // Hart ID from outside
-      .hart_id_i       (hart_id_i),
-      .mtvec_o         (mtvec),
-      .utvec_o         (utvec),
-      .mtvec_mode_o    (mtvec_mode),
-      .utvec_mode_o    (utvec_mode),
-      // mtvec address
-      .mtvec_addr_i    (mtvec_addr_i[31:0]),
-      .csr_mtvec_init_i(csr_mtvec_init),
-      // Interface to CSRs (SRAM like)
-      .csr_addr_i      (csr_addr),
-      .csr_wdata_i     (csr_wdata),
-      .csr_op_i        (csr_op),
-      .csr_rdata_o     (csr_rdata),
+typedef struct packed {
+    logic [23:0] mtvec;
+    logic [23:0] utvec;
+    logic [1:0] mtvec_mode;
+    logic [1:0] utvec_mode;
+    logic [31:0] csr_rdata;
+    logic fs_off;
+    logic [2:0] frm_csr;    
+    logic [31:0] mie_bypass;    
+    logic m_irq_enable;
+    logic u_irq_enable;
+    logic sec_lvl_o;
+    logic [31:0] mepc;
+    logic [31:0] uepc;
+    logic [31:0] mcounteren;
+    logic [31:0] depc;
+    logic debug_single_step;
+    logic debug_ebreakm;
+    logic debug_ebreaku;
+    logic trigger_match;
+    PrivLvl_t current_priv_lvl;
+    logic [N_PMP_ENTRIES-1:0][31:0] pmp_addr;
+    logic [N_PMP_ENTRIES-1:0][7:0] pmp_cfg;
+} cs_reg_struct;
 
-      .fs_off_o   (fs_off),
-      .frm_o      (frm_csr),
-      .fflags_i   (fflags_csr),
-      .fflags_we_i(fflags_we),
-      .fregs_we_i (fregs_we),
+cs_reg_struct ciao [3];
 
-      // Interrupt related control signals
-      .mie_bypass_o  (mie_bypass),
-      .mip_i         (mip),
-      .m_irq_enable_o(m_irq_enable),
-      .u_irq_enable_o(u_irq_enable),
-      .csr_irq_sec_i (csr_irq_sec),
-      .sec_lvl_o     (sec_lvl_o),
-      .mepc_o        (mepc),
-      .uepc_o        (uepc),
+genvar j;
+generate
+  for (j=0;j<3;j++) begin : CS_REG
+ cv32e40p_cs_registers #(
+    .N_HWLP          (N_HWLP),
+    .A_EXTENSION     (A_EXTENSION),
+    .FPU             (FPU),
+    .ZFINX           (ZFINX),
+    .APU             (APU),
+    .PULP_SECURE     (PULP_SECURE),
+    .USE_PMP         (USE_PMP),
+    .N_PMP_ENTRIES   (N_PMP_ENTRIES),
+    .NUM_MHPMCOUNTERS(NUM_MHPMCOUNTERS),
+    .COREV_PULP      (COREV_PULP),
+    .COREV_CLUSTER   (COREV_CLUSTER),
+    .DEBUG_TRIGGER_EN(DEBUG_TRIGGER_EN)
+) cs_registers_i (
+    .clk  (clk),
+    .rst_n(rst_ni),
 
-      // HPM related control signals
-      .mcounteren_o(mcounteren),
+    // Hart ID from outside
+    .hart_id_i       (hart_id_i),
+    .mtvec_o         (ciao[j].mtvec),
+    .utvec_o         (ciao[j].utvec),
+    .mtvec_mode_o    (ciao[j].mtvec_mode),
+    .utvec_mode_o    (ciao[j].utvec_mode),
+    // mtvec address
+    .mtvec_addr_i    (mtvec_addr_i[31:0]),
+    .csr_mtvec_init_i(csr_mtvec_init),
+    // Interface to CSRs (SRAM like)
+    .csr_addr_i      (csr_addr),
+    .csr_wdata_i     (csr_wdata),
+    .csr_op_i        (csr_op),
+    .csr_rdata_o     (ciao[j].csr_rdata),
 
-      // debug
-      .debug_mode_i       (debug_mode),
-      .debug_cause_i      (debug_cause),
-      .debug_csr_save_i   (debug_csr_save),
-      .depc_o             (depc),
-      .debug_single_step_o(debug_single_step),
-      .debug_ebreakm_o    (debug_ebreakm),
-      .debug_ebreaku_o    (debug_ebreaku),
-      .trigger_match_o    (trigger_match),
+    .fs_off_o   (ciao[j].fs_off),
+    .frm_o      (ciao[j].frm_csr),
+    .fflags_i   (fflags_csr),
+    .fflags_we_i(fflags_we),
+    .fregs_we_i (fregs_we),
 
-      .priv_lvl_o(current_priv_lvl),
+    // Interrupt related control signals
+    .mie_bypass_o  (ciao[j].mie_bypass),
+    .mip_i         (mip),
+    .m_irq_enable_o(ciao[j].m_irq_enable),
+    .u_irq_enable_o(ciao[j].u_irq_enable),
+    .csr_irq_sec_i (csr_irq_sec),
+    .sec_lvl_o     (ciao[j].sec_lvl_o),
+    .mepc_o        (ciao[j].mepc),
+    .uepc_o        (ciao[j].uepc),
 
-      .pmp_addr_o(pmp_addr),
-      .pmp_cfg_o (pmp_cfg),
+    // HPM related control signals
+    .mcounteren_o(ciao[j].mcounteren),
 
-      .pc_if_i(pc_if),
-      .pc_id_i(pc_id),
-      .pc_ex_i(pc_ex),
+    // debug
+    .debug_mode_i       (debug_mode),
+    .debug_cause_i      (debug_cause),
+    .debug_csr_save_i   (debug_csr_save),
+    .depc_o             (ciao[j].depc),
+    .debug_single_step_o(ciao[j].debug_single_step),
+    .debug_ebreakm_o    (ciao[j].debug_ebreakm),
+    .debug_ebreaku_o    (ciao[j].debug_ebreaku),
+    .trigger_match_o    (ciao[j].trigger_match),
 
-      .csr_save_if_i     (csr_save_if),
-      .csr_save_id_i     (csr_save_id),
-      .csr_save_ex_i     (csr_save_ex),
-      .csr_restore_mret_i(csr_restore_mret_id),
-      .csr_restore_uret_i(csr_restore_uret_id),
+    .priv_lvl_o(ciao[j].current_priv_lvl),
 
-      .csr_restore_dret_i(csr_restore_dret_id),
+    .pmp_addr_o(ciao[j].pmp_addr),
+    .pmp_cfg_o (ciao[j].pmp_cfg),
 
-      .csr_cause_i     (csr_cause),
-      .csr_save_cause_i(csr_save_cause),
+    .pc_if_i(pc_if),
+    .pc_id_i(pc_id),
+    .pc_ex_i(pc_ex),
 
-      // from hwloop registers
-      .hwlp_start_i(hwlp_start),
-      .hwlp_end_i  (hwlp_end),
-      .hwlp_cnt_i  (hwlp_cnt),
+    .csr_save_if_i     (csr_save_if),
+    .csr_save_id_i     (csr_save_id),
+    .csr_save_ex_i     (csr_save_ex),
+    .csr_restore_mret_i(csr_restore_mret_id),
+    .csr_restore_uret_i(csr_restore_uret_id),
 
-      // performance counter related signals
-      .mhpmevent_minstret_i    (mhpmevent_minstret),
-      .mhpmevent_load_i        (mhpmevent_load),
-      .mhpmevent_store_i       (mhpmevent_store),
-      .mhpmevent_jump_i        (mhpmevent_jump),
-      .mhpmevent_branch_i      (mhpmevent_branch),
-      .mhpmevent_branch_taken_i(mhpmevent_branch_taken),
-      .mhpmevent_compressed_i  (mhpmevent_compressed),
-      .mhpmevent_jr_stall_i    (mhpmevent_jr_stall),
-      .mhpmevent_imiss_i       (mhpmevent_imiss),
-      .mhpmevent_ld_stall_i    (mhpmevent_ld_stall),
-      .mhpmevent_pipe_stall_i  (mhpmevent_pipe_stall),
-      .apu_typeconflict_i      (perf_apu_type),
-      .apu_contention_i        (perf_apu_cont),
-      .apu_dep_i               (perf_apu_dep),
-      .apu_wb_i                (perf_apu_wb)
-  );
+    .csr_restore_dret_i(csr_restore_dret_id),
+
+    .csr_cause_i     (csr_cause),
+    .csr_save_cause_i(csr_save_cause),
+
+    // from hwloop registers
+    .hwlp_start_i(hwlp_start),
+    .hwlp_end_i  (hwlp_end),
+    .hwlp_cnt_i  (hwlp_cnt),
+
+    // performance counter related signals
+    .mhpmevent_minstret_i    (mhpmevent_minstret),
+    .mhpmevent_load_i        (mhpmevent_load),
+    .mhpmevent_store_i       (mhpmevent_store),
+    .mhpmevent_jump_i        (mhpmevent_jump),
+    .mhpmevent_branch_i      (mhpmevent_branch),
+    .mhpmevent_branch_taken_i(mhpmevent_branch_taken),
+    .mhpmevent_compressed_i  (mhpmevent_compressed),
+    .mhpmevent_jr_stall_i    (mhpmevent_jr_stall),
+    .mhpmevent_imiss_i       (mhpmevent_imiss),
+    .mhpmevent_ld_stall_i    (mhpmevent_ld_stall),
+    .mhpmevent_pipe_stall_i  (mhpmevent_pipe_stall),
+    .apu_typeconflict_i      (perf_apu_type),
+    .apu_contention_i        (perf_apu_cont),
+    .apu_dep_i               (perf_apu_dep),
+    .apu_wb_i                (perf_apu_wb)
+);
+  end
+endgenerate
+
+// Define the function to assign the struct fields to individual variables
+function void assignStructToVariables(cs_reg_struct ciao_struct);
+    mtvec           = ciao_struct.mtvec;
+    utvec           = ciao_struct.utvec;
+    mtvec_mode      = ciao_struct.mtvec_mode;
+    utvec_mode      = ciao_struct.utvec_mode;
+    csr_rdata       = ciao_struct.csr_rdata;
+    m_irq_enable    = ciao_struct.m_irq_enable;
+    u_irq_enable    = ciao_struct.u_irq_enable;
+    mie_bypass      = ciao_struct.mie_bypass;
+    fs_off          = ciao_struct.fs_off;
+    frm_csr         = ciao_struct.frm_csr;
+    sec_lvl_o       = ciao_struct.sec_lvl_o;
+    mepc            = ciao_struct.mepc;
+    uepc            = ciao_struct.uepc;
+    mcounteren      = ciao_struct.mcounteren;
+    depc            = ciao_struct.depc;
+    debug_single_step = ciao_struct.debug_single_step;
+    debug_ebreakm   = ciao_struct.debug_ebreakm;
+    debug_ebreaku   = ciao_struct.debug_ebreaku;
+    trigger_match   = ciao_struct.trigger_match;
+    current_priv_lvl= ciao_struct.current_priv_lvl;
+    pmp_addr        = ciao_struct.pmp_addr;
+    pmp_cfg         = ciao_struct.pmp_cfg;
+
+endfunction
+
+always_comb begin : CS_REG_ERROR_DETECTION
+  if (ciao[0] == ciao[1] && ciao[0] == ciao[2]) begin
+    cs_reg_error = 0;
+  end else begin
+    cs_reg_error = 1;
+  end
+end
+
+always_comb begin : DECISOR_CS_REG
+
+  if (ciao[0] == ciao[1]) begin
+    assignStructToVariables(ciao[0]);
+  end else if (ciao[1] == ciao[2]) begin
+    assignStructToVariables(ciao[1]);
+  end else if (ciao[0] == ciao[2]) begin
+    assignStructToVariables(ciao[0]);
+  end else begin
+    mtvec           = '0;
+    utvec           = '0;
+    mtvec_mode      = '0;
+    utvec_mode      = '0;
+    csr_rdata       = '0;
+    fs_off          = '0;
+    frm_csr         = '0;
+    mie_bypass      = '0;
+    m_irq_enable    = '0;
+    u_irq_enable    = '0;
+    sec_lvl_o       = '0;
+    mepc            = '0;
+    uepc            = '0;
+    mcounteren      = '0;
+    depc            = '0;
+    debug_single_step = '0;
+    debug_ebreakm   = '0;
+    debug_ebreaku   = '0;
+    trigger_match   = '0;
+    current_priv_lvl = PRIV_LVL_U;
+    pmp_addr        = '0;
+    pmp_cfg         = '0;
+  end
+
+end
+
+  // Assigning error signal
+  assign cs_error = cs_reg_error;
 
   //  CSR access
   assign csr_addr = csr_addr_int;

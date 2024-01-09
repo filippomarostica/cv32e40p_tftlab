@@ -43,7 +43,8 @@ initial begin
                 $fs_strobe(`TOPLEVEL.mem_err_o);
                 $fs_strobe(`TOPLEVEL.ecc_err_o);
                 $fs_strobe(`TOPLEVEL.tmr_mult_err_o);
-                        
+                $fs_strobe(`TOPLEVEL.cs_error);
+
                 #10000; // TMAX Strobe period
         end
 
