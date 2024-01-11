@@ -12,6 +12,8 @@ FaultGenerate
 {
     #NA [0,1] { PORT "cv32e40p_top.core_i.ex_stage_i.alu_i.**" } 
     #NA [0,1] { PORT "cv32e40p_top.core_i.**" } 
-    NA [0,1] { PORT "cv32e40p_top.**" }  
-    #NA [0,1] { PORT "cv32e40p_top.core_i.ex_stage_i.alu_i.ALU_DIV_TMR_0__alu_div_i.**"}
+    #NA [0,1] { PORT "cv32e40p_top.**" }  
+    NA [0,1] { PORT "cv32e40p_top.core_i.ex_stage_i.alu_i.ALU_DIV_TMR_0__alu_div_i.**"}
+    NA [0,1] { PORT "cv32e40p_top.core_i.ex_stage_i.alu_i.ALU_DIV_TMR_1__alu_div_i.**"}
+    NA [0,1] { PORT "cv32e40p_top.core_i.ex_stage_i.alu_i.ALU_DIV_TMR_2__alu_div_i.**"}
 }
