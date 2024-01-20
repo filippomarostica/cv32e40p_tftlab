@@ -51,9 +51,7 @@ module cv32e40p_alu
     output logic ready_o,
     input  logic ex_ready_i,
 
-    output logic [32:0] div_out_0,     // out div for TMR
-    output logic [32:0] div_out_1,     // out div for TMR
-    output logic [32:0] div_out_2,     // out div for TMR
+    output logic [1:0] div_tmr_err_o,
     output logic [14:0] mem_err_o
 );
 
@@ -935,52 +933,9 @@ module cv32e40p_alu
   // the result of the divison based on the TMR decision system is equal to
   // result = xy V yz V xz where x,y,z are the out from the 3 divisior (the 3 elem. array)
 
-  assign reuslt_div_tmp[0] = {result_div_partial[0], div_ready_tmp[0]};
-  assign reuslt_div_tmp[1] = {result_div_partial[1], div_ready_tmp[1]};
-  assign reuslt_div_tmp[2] = {result_div_partial[2], div_ready_tmp[2]};
-  
-  always_comb begin : DECISOR
+  cv32e40p_tmr #(.DATA_WIDTH(1)) ready_tmr (.data_0_i(div_ready_tmp[0]),.data_1_i(div_ready_tmp[1]),.data_2_i(div_ready_tmp[2]),.data_o(div_ready),.tmr_err(div_tmr_err_o[0]));
+  cv32e40p_tmr #(.DATA_WIDTH(32)) ready_tmr (.data_0_i(result_div_partial[0]),.data_1_i(result_div_partial[1]),.data_2_i(result_div_partial[2]),.data_o(result_div),.tmr_err(div_tmr_err_o[1]));
 
-    if (reuslt_div_tmp[0] == reuslt_div_tmp[1]) begin
-      result_div = result_div_partial[0];
-      div_ready = div_ready_tmp[0];
-    end else if (reuslt_div_tmp[1] == reuslt_div_tmp[2]) begin
-       result_div = result_div_partial[1];
-       div_ready = div_ready_tmp[1];
-    end else if (reuslt_div_tmp[0] == reuslt_div_tmp[2]) begin
-       result_div = result_div_partial[0];
-       div_ready = div_ready_tmp[0];
-    end else begin
-      result_div = '0;
-      div_ready = 0;
-    end
-
-  end
-
-  assign div_out_0 = reuslt_div_tmp[0];
-  assign div_out_1 = reuslt_div_tmp[1];
-  assign div_out_2 = reuslt_div_tmp[2]; 
-
-  /*cv32e40p_alu_div alu_div_i (
-          .Clk_CI (clk),
-          .Rst_RBI(rst_n),
-
-          // input IF
-          .OpA_DI      (operand_b_i),
-          .OpB_DI      (shift_left_result),
-          .OpBShift_DI (div_shift),
-          .OpBIsZero_SI((cnt_result == 0)),
-
-          .OpBSign_SI(div_op_a_signed),
-          .OpCode_SI (operator_i[1:0]),
-
-          .Res_DO(result_div),
-
-          // Hand-Shake
-          .InVld_SI (div_valid),
-          .OutRdy_SI(ex_ready_i),
-          .OutVld_SO(div_ready)
-      );*/
 
   ////////////////////////////////////////////////////////
   //   ____                 _ _     __  __              //

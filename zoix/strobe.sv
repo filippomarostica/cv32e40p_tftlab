@@ -11,7 +11,7 @@ module strobe;
 
 // Inject faults
 initial begin
-
+        //force
         $display("ZOIX INJECTION");
         //$fs_inject;       // by default
 
@@ -37,12 +37,11 @@ initial begin
                 $fs_strobe(`TOPLEVEL.data_addr_o);
                 $fs_strobe(`TOPLEVEL.data_wdata_o);
                 $fs_strobe(`TOPLEVEL.data_be_o);
-                $fs_strobe(`TOPLEVEL.div_out_0);
-                $fs_strobe(`TOPLEVEL.div_out_1);
-                $fs_strobe(`TOPLEVEL.div_out_2);
-                $fs_strobe(`TOPLEVEL.mem_err_o);
-                $fs_strobe(`TOPLEVEL.ecc_err_o);
-                $fs_strobe(`TOPLEVEL.tmr_mult_err_o);
+
+                $fs_strobe(`TOPLEVEL.div_tmr_err_o); //div tmr
+                $fs_strobe(`TOPLEVEL.mem_err_o); //ecc div
+                $fs_strobe(`TOPLEVEL.ecc_err_o); //regfile ecc
+                $fs_strobe(`TOPLEVEL.tmr_mult_err_o);//mult tmr
                         
                 #10000; // TMAX Strobe period
         end

@@ -169,4 +169,10 @@ module tb_top #(
   end
 `endif
 
+`ifndef GATE_LEVEL_TOP
+  initial begin
+    force wrapper_i.top_i.core_i.ex_stage_i.alu_i.U1520.B1 = 0;
+  end
+`endif
+
 endmodule  // tb_top

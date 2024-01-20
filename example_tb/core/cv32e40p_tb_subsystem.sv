@@ -117,9 +117,7 @@ module cv32e40p_tb_subsystem #(
 
       .fetch_enable_i(fetch_enable_i),
       .core_sleep_o  (core_sleep_o),
-      .div_out_0(),    // out div for TMR
-      .div_out_1(),    // out div for TMR
-      .div_out_2(),    // out div for TMR
+      .div_tmr_err_o(),
       .mem_err_o(),
       .tmr_mult_err_o()
   );
