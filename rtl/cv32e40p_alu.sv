@@ -934,7 +934,7 @@ module cv32e40p_alu
   // result = xy V yz V xz where x,y,z are the out from the 3 divisior (the 3 elem. array)
 
   cv32e40p_tmr #(.DATA_WIDTH(1)) ready_tmr (.data_0_i(div_ready_tmp[0]),.data_1_i(div_ready_tmp[1]),.data_2_i(div_ready_tmp[2]),.data_o(div_ready),.tmr_err(div_tmr_err_o[0]));
-  cv32e40p_tmr #(.DATA_WIDTH(32)) ready_tmr (.data_0_i(result_div_partial[0]),.data_1_i(result_div_partial[1]),.data_2_i(result_div_partial[2]),.data_o(result_div),.tmr_err(div_tmr_err_o[1]));
+  cv32e40p_tmr #(.DATA_WIDTH(32)) output_tmr (.data_0_i(result_div_partial[0]),.data_1_i(result_div_partial[1]),.data_2_i(result_div_partial[2]),.data_o(result_div),.tmr_err(div_tmr_err_o[1]));
 
 
   ////////////////////////////////////////////////////////
