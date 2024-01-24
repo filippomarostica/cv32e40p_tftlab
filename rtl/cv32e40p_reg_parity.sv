@@ -1,4 +1,4 @@
-module cv32e40p_reg_ecc #(
+module cv32e40p_reg_parity #(
     parameter DATA_WIDTH = 32
 ) (
     input logic clk,

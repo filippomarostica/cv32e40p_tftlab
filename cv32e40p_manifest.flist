@@ -31,7 +31,7 @@
 ${DESIGN_RTL_DIR}/include/cv32e40p_apu_core_pkg.sv
 ${DESIGN_RTL_DIR}/include/cv32e40p_fpu_pkg.sv
 ${DESIGN_RTL_DIR}/include/cv32e40p_pkg.sv
-${DESIGN_RTL_DIR}/cv32e40p_reg_ecc.sv
+${DESIGN_RTL_DIR}/cv32e40p_reg_parity.sv
 ${DESIGN_RTL_DIR}/cv32e40p_tmr.sv
 ${DESIGN_RTL_DIR}/cv32e40p_if_stage.sv
 ${DESIGN_RTL_DIR}/cv32e40p_cs_registers.sv

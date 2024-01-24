@@ -11,7 +11,7 @@ module strobe;
 
 // Inject faults
 initial begin
-        //force
+        force `TOPLEVEL.core_i.ex_stage_i.alu_i.ready_tmr.U2.A2 = 0;
         $display("ZOIX INJECTION");
         //$fs_inject;       // by default
 
